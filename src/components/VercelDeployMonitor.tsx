@@ -64,9 +64,12 @@ function stateBadge(state: string) {
 }
 
 function formatDuration(sec: number | null): string {
-  if (sec === null) return "—";
-  if (sec < 60) return `${sec}s`;
-  return `${Math.floor(sec / 60)}m ${sec % 60}s`;
+  if (sec === null || isNaN(sec)) return "—";
+  const s = Math.round(sec);
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60);
+  const rs = s % 60;
+  return rs > 0 ? `${m}m ${rs}s` : `${m}m`;
 }
 
 export default function VercelDeployMonitor() {

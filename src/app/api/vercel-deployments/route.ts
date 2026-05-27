@@ -138,23 +138,27 @@ export async function GET() {
 
     // Compute aggregate metrics
     const states = deployments.map((d) => stateLabel(d));
-    const metrics = {
-      totalDeployments: deployments.length,
-      ready: states.filter((s) => s === "READY").length,
-      error: states.filter((s) => s === "ERROR").length,
-      building: states.filter((s) => s === "BUILDING").length,
-      canceled: states.filter((s) => s === "CANCELED").length,
-      queued: states.filter((s) => s === "QUEUED" || s === "INITIALIZING").length,
-      avgBuildSec: deployments
-        .filter((d) => d.state === "READY" || d.readyState === "READY")
-        .map(buildDuration)
-        .filter((v): v is number => v !== null && v > 0)
-        .reduce((a, b, _, arr) => (a * (arr.length - 1) + b) / arr.length, 0) || null,
-    };
+    const buildTimes = deployments
+      .filter((d) => d.state === "READY" || d.readyState === "READY")
+      .map(buildDuration)
+      .filter((v): v is number => v !== null && v > 0);
+
+    const avgBuildSec =
+      buildTimes.length > 0
+        ? Math.round(buildTimes.reduce((a, b) => a + b, 0) / buildTimes.length)
+        : null;
 
     return NextResponse.json({
       project: { id: projectId, name: depData.project?.name || "unknown" },
-      metrics,
+      metrics: {
+        totalDeployments: deployments.length,
+        ready: states.filter((s) => s === "READY").length,
+        error: states.filter((s) => s === "ERROR").length,
+        building: states.filter((s) => s === "BUILDING").length,
+        canceled: states.filter((s) => s === "CANCELED").length,
+        queued: states.filter((s) => s === "QUEUED" || s === "INITIALIZING").length,
+        avgBuildSec,
+      },
       deployments: entries,
       fetchedAt: new Date().toISOString(),
     });
