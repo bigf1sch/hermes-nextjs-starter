@@ -1,5 +1,6 @@
 import GitHubDashboard from "@/components/GitHubDashboard";
 import VercelDeployMonitor from "@/components/VercelDeployMonitor";
+import ChatPanel from "@/components/ChatPanel";
 
 export default function Home() {
   return (
@@ -80,6 +81,11 @@ export default function Home() {
           {/* Vercel Deploy Monitor */}
           <div className="mt-8 w-full max-w-4xl">
             <VercelDeployMonitor />
+          </div>
+
+          {/* DeepSeek AI Chat */}
+          <div className="mt-8 w-full max-w-3xl">
+            <ChatPanel />
           </div>
         </div>
       </main>
