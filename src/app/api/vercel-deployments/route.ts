@@ -115,14 +115,24 @@ export async function GET() {
         errorCode: d.errorCode || null,
         errorMessage: d.errorMessage || null,
         aliasError: d.aliasError || null,
-        recentErrors: errors.map((e: VercelEvent) => {
-          const raw = e.text || (e.payload && typeof e.payload === "object" && "text" in e.payload ? String((e.payload as Record<string, unknown>).text) : JSON.stringify(e.payload || {}));
-          return {
-            type: e.type,
-            text: raw.slice(0, 200),
-            created: e.created,
-          };
-        }),
+        recentErrors: errors
+          .filter((e: VercelEvent) => {
+            // Only include real errors, not normal stderr build output
+            const isErrorType = e.type?.includes("error") || e.type === "stderr";
+            if (!isErrorType) return false;
+            const raw = e.text || (e.payload && typeof e.payload === "object" && "text" in e.payload ? String((e.payload as Record<string, unknown>).text) : JSON.stringify(e.payload || {}));
+            // Skip normal build output (Completed, Installing, etc.)
+            const skipPatterns = ["Build Completed", "Running build", "Installing", "Collecting", "Generating", "Finalizing", "Build Completed"];
+            return !skipPatterns.some((p) => raw.startsWith(p));
+          })
+          .map((e: VercelEvent) => {
+            const raw = e.text || (e.payload && typeof e.payload === "object" && "text" in e.payload ? String((e.payload as Record<string, unknown>).text) : JSON.stringify(e.payload || {}));
+            return {
+              type: e.type,
+              text: raw.slice(0, 200),
+              created: e.created,
+            };
+          }),
       };
     });
 
