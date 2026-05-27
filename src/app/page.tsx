@@ -1,4 +1,5 @@
 import GitHubDashboard from "@/components/GitHubDashboard";
+import VercelDeployMonitor from "@/components/VercelDeployMonitor";
 
 export default function Home() {
   return (
@@ -74,6 +75,11 @@ export default function Home() {
           {/* GitHub Dashboard */}
           <div className="mt-8 w-full max-w-3xl">
             <GitHubDashboard />
+          </div>
+
+          {/* Vercel Deploy Monitor */}
+          <div className="mt-8 w-full max-w-4xl">
+            <VercelDeployMonitor />
           </div>
         </div>
       </main>
